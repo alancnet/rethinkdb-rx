@@ -1,0 +1,15 @@
+{
+  "name": "rethink-rx",
+  "version": "0.0.1",
+  "description": "ReactiveX utilities for RethinkDB.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "rethinkdb": "^2.3.3",
+    "rx": "^4.1.0"
+  }
+}
