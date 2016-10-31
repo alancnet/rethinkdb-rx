@@ -3,6 +3,8 @@
 A library that provides real-time StreamingLog and KeyValueStore functionality
 using RethinkDB as a backend.
 
+#### [JSDoc Documentation](https://cdn.rawgit.com/alancnet/rethinkdb-rx/master/out/index.html)
+
 ## StreamingLog
 
 ```javascript
