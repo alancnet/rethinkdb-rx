@@ -3,9 +3,8 @@
 A library that provides real-time StreamingLog and KeyValueStore functionality
 using RethinkDB as a backend.
 
-#### [JSDoc Documentation](https://cdn.rawgit.com/alancnet/rethinkdb-rx/master/out/index.html)
-
 ## StreamingLog
+#### [StreamingLog Reference](https://cdn.rawgit.com/alancnet/rethinkdb-rx/master/out/StreamingLog.html)
 
 ```javascript
 const rx = require('rx');
@@ -37,6 +36,7 @@ pubsub.dispose(); // Stop publishing
 ```
 
 ## KeyValueStore
+#### [KeyValueStore Reference](https://cdn.rawgit.com/alancnet/rethinkdb-rx/master/out/KeyValueStore.html)
 
 ```javascript
 const rx = require('rx');
