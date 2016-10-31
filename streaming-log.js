@@ -45,6 +45,7 @@ function StreamingLog(options, db) {
   */
 
   this.topic = (topic, options) => {
+    const topicOptions = options;
     if (!options) options = {
       fromBeginning: false,
       timestamp: null,
@@ -73,7 +74,7 @@ function StreamingLog(options, db) {
           topicStream
         );
       }
-      if (options && options.waitForTopic) {
+      if (options.waitForTopic) {
         topicStream = rx.Observable.concat(
           this.topics
             .filter(x => x === topic) // Look for the topic
@@ -84,8 +85,8 @@ function StreamingLog(options, db) {
       }
       topicStream.publish = (observable) => this.publish(topic, observable);
       topicStream.replay = function(options) {
-        if (!option || typeof options == 'object' && options.constructor == Object) {
-          return this.replay(topic, options);
+        if (!options || typeof options == 'object' && options.constructor == Object) {
+          return this.replay(topic, Object.assign({}, topicOptions, options));
         } else {
           return rx.Observable.prototype.replay.apply(topicStream, arguments);
         }
@@ -95,12 +96,19 @@ function StreamingLog(options, db) {
     }
   };
 
-  this.replay = (topic, options) => rx.Observable.create(obs => {
-    const connSub = this.connect.subscribe(conn => {
-      rdb.table(topic)
-        .orderBy('timestamp')
-        .filter(r.row('timestamp').ge(options.timestamp || new Date(0)))
-        .run(conn, (err, cursor) => {
+  this.replay = (topic, options) => {
+    var replayStream = rx.Observable.create(obs => {
+      const connSub = this.connect.subscribe(conn => {
+        var query = rdb.table(topic)
+        if (options.timestamp) query = query
+          .filter(r.row('timestamp').ge(options.timestamp || new Date(0)));
+        if (options.tail) query = query
+          .orderBy(r.desc('timestamp'))
+          .limit(1)
+
+        query = query.orderBy('timestamp');
+
+        return query.run(conn, (err, cursor) => {
           if (err) obs.onError(err);
           else cursor.each((err, value) => {
             if (err) obs.onError(err);
@@ -109,9 +117,20 @@ function StreamingLog(options, db) {
             connSub.dispose();
             obs.onCompleted();
           })
-        })
-    })
-  });
+        });
+      })
+    });
+    if (options.waitForTopic) {
+      replayStream = rx.Observable.concat(
+        this.topics
+          .filter(x => x === topic) // Look for the topic
+          .take(1)                  // Complete when we find it
+          .filter(x => false),      // but don't emit anything.
+        replayStream
+      );
+    }
+    return replayStream;
+  };
 
   this.createTopic = (topic) => this.connect
     .flatMap(conn => rx.Observable.create(obs => {
@@ -178,13 +197,18 @@ function StreamingLog(options, db) {
           };
           pauser.onNext(true);
         },
-      err => {
-        console.error(`Error in streamingLog(${options}, ${db}).publish(${topic}).connect():`, err);
-        subscription.dispose();
-      }
-    );
+        err => {
+          console.error(`Error in streamingLog(${options}, ${db}).publish(${topic}).connect():`, err);
+          subscription.dispose();
+        }
+      );
 
-      return connSub;
+      return {
+        dispose: () => {
+          subscription.dispose();
+          connSub.dispose();
+        }
+      };
     } else {
       const subject = new rx.Subject();
       this.publish(topic, subject);
