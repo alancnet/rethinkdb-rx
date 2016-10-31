@@ -1,6 +1,7 @@
 /**
 Returns a streaming log interface for RethinkDB.
-@param {RethinkDBOptions} options - Options for initializing RethinkDB
+@param {(RethinkDBConnectOptions|string)} options - Options for the connection,
+                        or a hostname.
 @param {string} [db="test"] - Name of the DB to use.
 @returns {StreamingLog}
 */
@@ -12,6 +13,7 @@ Creates a streaming log interface for RethinkDB
            Tables are used as topics, and r.changes() is used to stream events.
 @param {(RethinkDBConnectOptions|string)} options - Options for the connection,
                         or a hostname.
+@param {string} [db="test"] - Name of the DB to use.
 @property {Observable<RethinkDBConnectOptions>} connect - Observable that connects to RethinkDB and emits
                         an active connection, and closes that connection
                         when the subscription is disposed.

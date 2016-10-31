@@ -1,5 +1,6 @@
 module.exports = {
-  streamingLog: require('./streaming-log')
+  streamingLog: require('./streaming-log'),
+  keyValueStore: require('./key-value-store')
 };
 
 
