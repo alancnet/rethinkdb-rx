@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "log4js": "^1.0.0",
     "rethinkdb": "^2.3.3",
     "rx": "^4.1.0"
   }

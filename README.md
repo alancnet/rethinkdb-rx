@@ -70,9 +70,10 @@ getsub.dispose(); // Stop getting
 
 ### TODO:
 
-1. Connection pooling.
+1. ~~Connection pooling.~~ (Done)
 2. ReactiveX interface for standard RethinkDB operations.
 3. Memoization of created topics so createTopic can shortcut.
 4. Stream of created topics so waitForTopic can be instant.
 5. Tests? Everything requires ReactDB...
 6. Reporting of resource leaks like undisposed streams and stale connections.
+7. Configuration for connection pooling.

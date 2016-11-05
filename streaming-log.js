@@ -1,5 +1,6 @@
 const rx = require('rx');
 const r = require('rethinkdb');
+const connectionPool = require('./connection-pool');
 
 function streamingLog(options, db) {
   return new StreamingLog(options, db);
@@ -7,18 +8,9 @@ function streamingLog(options, db) {
 
 function StreamingLog(options, db) {
   const rdb = db ? r.db(db) : r;
-  this.connect = rx.Observable.create(obs => {
-    var conn = null;
-    r.connect(options)
-      .then(connection => {
-        conn = connection;
-        obs.onNext(connection);
-      })
-      .catch(err => {
-        obs.onError(err);
-      });
-    return () => conn && conn.close();
-  });
+  this.connect = connectionPool({
+    connectionOptions: options
+  }).connect;
 
   this.topics = this.connect.flatMap(conn => rx.Observable.create(obs => {
     function getTables() {
